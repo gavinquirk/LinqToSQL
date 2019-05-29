@@ -32,7 +32,11 @@ namespace LinqToSQL
             dataContext = new LinqToSqlDataClassesDataContext(connectionString);
 
             //InsertUniversities();
-            InsertStudents();
+            //InsertStudents();
+            //InsertLectures();
+            //InsertStudentLectureAssociations();
+            //GetUniversityOfToni();
+            GetLecturesOfToni();
         }
 
         // Add a University
@@ -56,6 +60,9 @@ namespace LinqToSQL
         // Add Students
         public void InsertStudents()
         {
+            dataContext.ExecuteCommand("delete from Student");
+
+
             University yale = dataContext.Universities.First(un => un.Name.Equals("Yale")); // First document in University collection which has the name Yale. Return as object
             University harvard = dataContext.Universities.First(un => un.Name.Equals("Harvard"));
 
@@ -70,11 +77,67 @@ namespace LinqToSQL
             dataContext.SubmitChanges();
 
             MainDataGrid.ItemsSource = dataContext.Students;
-
-
-
-
-
         }
+
+        public void InsertLectures()
+        {
+            dataContext.ExecuteCommand("delete from Lecture");
+
+
+            dataContext.Lectures.InsertOnSubmit(new Lecture { Name = "Math" });
+            dataContext.Lectures.InsertOnSubmit(new Lecture { Name = "History" });
+
+            dataContext.SubmitChanges();
+
+            MainDataGrid.ItemsSource = dataContext.Lectures;
+        }
+
+        public void InsertStudentLectureAssociations()
+        {
+            Student Carla = dataContext.Students.First(st => st.Name.Equals("Carla"));
+            Student Toni = dataContext.Students.First(st => st.Name.Equals("Toni"));
+            Student Leyla = dataContext.Students.First(st => st.Name.Equals("Leyla"));
+            Student James = dataContext.Students.First(st => st.Name.Equals("James"));
+
+            Lecture Math = dataContext.Lectures.First(lc => lc.Name.Equals("Math"));
+            Lecture History = dataContext.Lectures.First(lc => lc.Name.Equals("History"));
+
+            dataContext.StudentLectures.InsertOnSubmit(new StudentLecture { Student = Carla, Lecture = Math });
+            dataContext.StudentLectures.InsertOnSubmit(new StudentLecture { Student = Toni, Lecture = Math });
+
+            StudentLecture slToni = new StudentLecture();
+            slToni.Student = Toni;
+            slToni.LectureId = History.Id;
+            dataContext.StudentLectures.InsertOnSubmit(slToni);
+
+            dataContext.StudentLectures.InsertOnSubmit(new StudentLecture { Student = Leyla, Lecture = History });
+
+            dataContext.SubmitChanges();
+
+            MainDataGrid.ItemsSource = dataContext.StudentLectures;
+        }
+
+        public void GetUniversityOfToni()
+        {
+            Student Toni = dataContext.Students.First(st => st.Name.Equals("Toni"));
+
+            University TonisUniversity = Toni.University;
+
+            List<University> universities = new List<University>();
+            universities.Add(TonisUniversity);
+
+            MainDataGrid.ItemsSource = universities;
+        }
+
+        public void GetLecturesOfToni()
+        {
+            Student Toni = dataContext.Students.First(st => st.Name.Equals("Toni"));
+
+            var tonisLectures = from sl in Toni.StudentLectures select sl.Lecture;
+
+            MainDataGrid.ItemsSource = tonisLectures;
+        }
+
+
     }
 }
