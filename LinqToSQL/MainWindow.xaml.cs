@@ -39,7 +39,9 @@ namespace LinqToSQL
             //GetLecturesOfToni();
             //GetAllStudentsFromYale();
             //GetAllUniversitiesWithTransgenders();
-            GetAllLecturesFromHarvard();
+            //GetAllLecturesFromHarvard();
+            //UpdateToni();
+            DeleteJames();
         }
 
         // Add a University
@@ -169,6 +171,27 @@ namespace LinqToSQL
                                       select sl.Lecture;
 
             MainDataGrid.ItemsSource = lecturesFromHarvard;
+        }
+
+        public void UpdateToni()
+        {
+            Student Toni = dataContext.Students.FirstOrDefault(st => st.Name.Equals("Toni"));
+
+            Toni.Name = "Antonio";
+
+            dataContext.SubmitChanges();
+
+            MainDataGrid.ItemsSource = dataContext.Students;
+        }
+
+        public void DeleteJames()
+        {
+            Student James = dataContext.Students.FirstOrDefault(st => st.Name.Equals("James"));
+
+            dataContext.Students.DeleteOnSubmit(James);
+            dataContext.SubmitChanges();
+
+            MainDataGrid.ItemsSource = dataContext.Students;
         }
     }
 }
